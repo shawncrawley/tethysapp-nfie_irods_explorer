@@ -4,41 +4,49 @@
  ****GLOBAL VARIABLES***
  ***********************/
 
+/**********jQuery Handles**********/
 var dropDowns = $('#drop-down');
 var fileInfoDiv = $('#file-info');
 var downloadButton = $('#download-button');
 var uploadButton = $('#upload-button');
 var viewerButton = $('#viewer-button');
 var displayStatus = $('#display-status');
+
+/**********Other**********/
 var downloadPath;
+
+
 /*************************
 RUN ONCE DOCUMENT IS READY
  *************************/
 
-$(function() { //run once page is ready
-    clearFileInfo();
-    var dropDownHtml = $('#entries-hidden-text').text();
-    dropDowns.append(dropDownHtml);
-    formatDropDown(null);
-    $('#resource-keywords').tagsinput({confirmKeys: [32, 44]});
-     dropDowns.on('select2:select', '.folders',
-         function(evt) {
-             var numElements = $(this).nextAll().length;
-             if (numElements != 1) {
-                 $(this).next().nextAll().remove();
-             }
-             var selection_path = evt.params.data.element.id;
-             irodsQuery(selection_path);
-             if (!(fileInfoDiv.is(':empty'))){clearFileInfo()}
-         }
-     );
+$(function() { //run once page is ready//
+
+    //prepares initial page view//
+    clearFileInfo(); //this clears divs and buttons associated with a file selection
+    var dropDownHtml = $('#entries-hidden-text').text(); //a hidden div that receives the initial irods directory names
+    dropDowns.append(dropDownHtml); //the html from the hidden div is added to the actual dropDowns div
+    formatDropDown('folders'); //this formats the folders in the dropdown with folder images
+
+    //adds event listeners to all present and future dropdowns//
+    dropDowns.on('select2:select', '.folders',
+        function(evt) {
+            var numElements = $(this).nextAll().length;
+            if (numElements != 1) {
+                $(this).next().nextAll().remove();
+            }
+            var selection_path = evt.params.data.element.id;
+            irodsQuery(selection_path);
+            if (!(fileInfoDiv.is(':empty'))){clearFileInfo()}
+        }
+    );
     dropDowns.on('select2:unselect', '.folders',
-         function() {
-             $('[aria-expanded=true]').parent().parent().remove();
-             $(this).next().nextAll().remove();
-             if (!(fileInfoDiv.is(':empty'))){clearFileInfo()}
-         }
-     );
+        function() {
+            $('[aria-expanded=true]').parent().parent().remove();
+            $(this).next().nextAll().remove();
+            if (!(fileInfoDiv.is(':empty'))){clearFileInfo()}
+        }
+    );
     dropDowns.on('select2:select', '.files',
          function(evt) {
              var selection_path = evt.params.data.element.id;
@@ -46,21 +54,32 @@ $(function() { //run once page is ready
          }
     );
     dropDowns.on('select2:unselect', '.files',
-         function() {
-             $('[aria-expanded=true]').parent().parent().remove();
-             if (!(fileInfoDiv.is(':empty'))){clearFileInfo()}
+        function() {
+            $('[aria-expanded=true]').parent().parent().remove();
+            if (!(fileInfoDiv.is(':empty'))){clearFileInfo()}
+        }
+    );
+}); //end of page-ready code//
 
-         }
-     );
-});
+/**************************************
+ ******HANDLE HYDROSHARE FORM******
+ **************************************/
 
-var clearFileInfo = function() {
-    fileInfoDiv.empty();
-    downloadButton.addClass('hidden');
-    uploadButton.addClass('hidden');
-    viewerButton.addClass('hidden');
-    fileInfoDiv.resize();
-};
+$('#resource-keywords').tagsinput({confirmKeys: [32, 44]});
+
+function clearUploadForm() {
+    if (!($('#credentials-checkbox').is(":checked"))) {
+        $('#hydro-username').val('');
+        $('#hydro-password').val('');
+    }
+    $('#resource-abstract').val('');
+    $('#resource-keywords')
+        .val('')
+        .tagsinput('removeAll');
+    displayStatus
+        .removeClass('error uploading success')
+        .empty();
+}
 
 /************************************
  ******QUERY THE IRODS DATABASE******
@@ -68,6 +87,7 @@ var clearFileInfo = function() {
 
 function irodsQuery(selectionPath) {
     downloadPath = '';
+
     //Query the iRODS database for the next branch of data
     $.ajax({
         type: 'GET',
@@ -95,20 +115,23 @@ function irodsQuery(selectionPath) {
                 $('#resource-title').val(downloadPath.slice(downloadPath.lastIndexOf('/')+1)); //place the filename in the modal form
 
                 if (downloadPath.indexOf('rapid') != -1 && downloadPath.indexOf('output') != -1) {
-                    //$('#resource-type').val('Multidimensional (NetCDF)');
+                    //$('#resource-type').val('Multidimensional (NetCDF)'); Currently not working. Will add once it has been fixed
                     var viewerButtonHref = "http://127.0.0.1:8000/apps/rapid-output-netcdf-viewer?usr=null&src=iRODS&res_id=" + downloadPath;
                     viewerButton.attr('href', viewerButtonHref);
                     viewerButton.removeClass('hidden');
                 } else {
                     $('#resource-type').val('Generic')
                 }
+
                 //show the appropriate buttons
                 downloadButton.removeClass('hidden');
                 uploadButton.removeClass('hidden');
+
                 /********************************
                  ******FORMAT THE JSON DATA******
                  ********************************/
-                //format the fileSize in appropriate units (originally in bytes)
+
+                //Format the fileSize to appropriate units (originally in bytes)
                 var dataSize = data.irods_data.dataSize;
                 var dataUnitsSwitchKey = 0;
                 while (dataSize > 999) {
@@ -128,14 +151,17 @@ function irodsQuery(selectionPath) {
                 };
                 var dataUnits = dataUnitsSwitch(dataUnitsSwitchKey);
                 data.irods_data.dataSize = dataSize.toFixed(2).toString() + " " + dataUnits;
-                //format the date (originally in milliseconds)
+
+                //Format the date (originally in milliseconds)
                 data.irods_data.createdAt = new Date(data.irods_data.createdAt).toUTCString();
                 data.irods_data.updatedAt = new Date(data.irods_data.updatedAt).toUTCString();
-                //build a table of the json data and place it in the file info html element
+
+                //Build a table of the json data and place it in the file info html element
                 fileInfoDiv.html(buildTable(data.irods_data));
                 fileInfoDiv.prepend('<h3>File metadata:</h3>');
                 fileInfoDiv.resize(); //resize the div
-                //format the table data headers with spaces and capitalization
+
+                //Format the table data headers with spaces and capitalization
                 $('.td_head').each(function() {
                     var thisText = $(this).text();
                     var loopTotal = thisText.length;
@@ -157,6 +183,7 @@ function irodsQuery(selectionPath) {
                         $(this).parent().parent().remove();
                     }
                 });
+
                 /***************************************
                  ******DOWNLOAD BUTTON CLICK EVENT******
                  ***************************************/
@@ -164,6 +191,7 @@ function irodsQuery(selectionPath) {
                 downloadButton.on('click', function () { //create a new click event to initialize the downloadPath variable
                     window.open(downloadPath);
                 });
+
                 /***************************************
                  *******UPLOAD BUTTON CLICK EVENT*******
                  ***************************************/
@@ -351,18 +379,4 @@ function tagChange(event) {
         inputElement.attr('style','width: 6em !important');
 
     }
-}
-
-function clearUploadForm() {
-    if (!($('#credentials-checkbox').is(":checked"))) {
-        $('#hydro-username').val('');
-        $('#hydro-password').val('');
-    }
-    $('#resource-abstract').val('');
-    $('#resource-keywords').val('');
-    $('#resource-keywords').tagsinput('removeAll');
-    displayStatus.removeClass('error');
-    displayStatus.removeClass('uploading');
-    displayStatus.removeClass('success');
-    displayStatus.empty();
 }

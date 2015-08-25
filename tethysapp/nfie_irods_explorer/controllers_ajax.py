@@ -20,7 +20,7 @@ def get_dropdown_contents(request):
         return JsonResponse({
                                 'success': "Response successfully returned!",
                                 'irods_data': irods_data
-                            })
+        })
 
 
 def upload_to_hydroshare(request):
