@@ -1,0 +1,109 @@
+{% extends "nfie_irods_explorer/base.html" %}
+
+{% load staticfiles %}
+
+{% load tethys_gizmos %}
+
+{% block styles %}
+{{ block.super }}
+<link href="{% static 'nfie_irods_explorer/css/main.css' %}" rel="stylesheet"/>
+<link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet"/>
+<link href="{% static 'nfie_irods_explorer/vendor/bootstrap-tagsinput/bootstrap-tagsinput.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block app_content %}
+<h1>Browse the public NFIE directories below:</h1>
+<div id="entries-hidden-text" class="always-hidden">{{ irods_data.folders }}</div>
+<div id="drop-down"></div>
+<br><br>
+<div id="dynamic-content">
+    <span id="file-button-options">
+        <button type="button" class="btn btn-success btn-lg" id="download-button">
+            <span class="glyphicon download" aria-hidden="true"></span>
+            <img src="/static/nfie_irods_explorer/images/download_icon.svg" class="button-icon"/> Download File
+        </button>
+        <a name="to-upload-button" class="btn btn-primary btn-lg" id="upload-button" data-toggle="modal" data-target="#hydroshare-modal" role="button">
+            <span class="glyphicon hydroshare" aria-hidden="true"></span>
+            <img src="/static/nfie_irods_explorer/images/hydroshare_icon.svg" class="button-icon"/> Upload to HydroShare
+        </a>
+        <a name="to-tethys-viewer" class="btn btn-info btn-lg" id="viewer-button" target="_blank">
+            <span class="glyphicon tethys" aria-hidden="true"></span>
+            <img src="/static/nfie_irods_explorer/images/tethys-logo.png" class="button-icon"/> Open in Tethys Viewer
+        </a>
+    </span>
+    <br><br>
+    <div id="file-info">
+    </div>
+</div>
+{% endblock %}
+
+{% block app_actions %}
+Icons made by <a href="http://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
+from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed
+by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a>
+{% endblock %}
+
+{% block scripts %}
+<div class="modal fade" id="hydroshare-modal" tabindex="-1" role="dialog" aria-labelledby="AddHydroshareResource">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h6 class="modal-title">Upload File to HydroShare as a Resource</h6>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="hydro-username" class="control-label">Hydroshare Username:</label>
+                    <input type="text" class="form-control" id="hydro-username">
+                </div>
+                <div class="form-group">
+                    <label for="hydro-password" class="control-label">Hydroshare Password:</label>
+                    <input type="password" class="form-control" id="hydro-password">
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="credentials-checkbox">Remember me until page refresh (useful if uploading many files)
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="resource-title" class="control-label">Resource Title:</label>
+                    <input type="text" class="form-control" id="resource-title">
+                </div>
+                <div class="form-group">
+                    <label for="resource-type" class="control-label">Resource Type:</label>
+                    <select class="form-control" id="resource-type">
+                        <option>Generic</option>
+                        <option>Geographic Raster</option>
+                        <option>HIS Referenced Time Series</option>
+                        <option>Model Program</option>
+                        <option>Model Instance</option>
+                        <!--<option>Multidimensional (NetCDF)</option>-->
+                        <option>Time Series</option>
+                        <option>Application</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="resource-abstract" class="control-label">Resource Abstract:</label>
+                    <textarea rows="4" cols="50" id="resource-abstract" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="resource-keywords" class="control-label">Resource Keywords:</label>
+                    <input class="form-control" id="resource-keywords" data-role="tagsinput"
+                           placeholder="Separate each keyword with a space or comma" onchange="tagChange(event)">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="display-status" class="col-md-8"></div>
+                <div id="footer-buttons" class="col-md-4">
+                    <button type="button" class="btn btn-default footer" data-dismiss="modal" onclick="clearUploadForm()">Close</button>
+                    <button type="button" class="btn btn-primary footer" id="hydroshare-proceed">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ block.super }}
+<script src="{% static 'nfie_irods_explorer/js/main.js' %}" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+<script src="{% static 'nfie_irods_explorer/vendor/bootstrap-tagsinput/bootstrap-tagsinput.min.js' %}"></script>
+{% endblock %}
