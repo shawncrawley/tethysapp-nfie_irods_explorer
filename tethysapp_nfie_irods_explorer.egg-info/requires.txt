@@ -1,0 +1,3 @@
+requests
+hs_restclient
+django
