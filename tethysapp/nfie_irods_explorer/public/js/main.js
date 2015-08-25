@@ -15,12 +15,25 @@ var displayStatus = $('#display-status');
 /**********Other**********/
 var downloadPath;
 
+/*****************************************************
+ ************GENERAL FUNCTIONS************************
+ *****************************************************/
+var clearFileInfo = function() {
+    fileInfoDiv.empty();
+    downloadButton.addClass('hidden');
+    uploadButton.addClass('hidden');
+    viewerButton.addClass('hidden');
+    fileInfoDiv.resize();
+};
+
 
 /*************************
 RUN ONCE DOCUMENT IS READY
  *************************/
 
-$(function() { //run once page is ready//
+$(function() { //run once page is ready
+
+    $('#resource-keywords').tagsinput({confirmKeys: [32, 44]});
 
     //prepares initial page view//
     clearFileInfo(); //this clears divs and buttons associated with a file selection
@@ -64,8 +77,6 @@ $(function() { //run once page is ready//
 /**************************************
  ******HANDLE HYDROSHARE FORM******
  **************************************/
-
-$('#resource-keywords').tagsinput({confirmKeys: [32, 44]});
 
 function clearUploadForm() {
     if (!($('#credentials-checkbox').is(":checked"))) {
@@ -116,7 +127,8 @@ function irodsQuery(selectionPath) {
 
                 if (downloadPath.indexOf('rapid') != -1 && downloadPath.indexOf('output') != -1) {
                     //$('#resource-type').val('Multidimensional (NetCDF)'); Currently not working. Will add once it has been fixed
-                    var viewerButtonHref = "http://127.0.0.1:8000/apps/rapid-output-netcdf-viewer?usr=null&src=iRODS&res_id=" + downloadPath;
+                    var viewerButtonHref = "http://127.0.0.1:8000/apps/nfie-data-viewer?usr=null&src=iRODS&res_id=" + downloadPath;
+                    console.log(viewerButtonHref);
                     viewerButton.attr('href', viewerButtonHref);
                     viewerButton.removeClass('hidden');
                 } else {

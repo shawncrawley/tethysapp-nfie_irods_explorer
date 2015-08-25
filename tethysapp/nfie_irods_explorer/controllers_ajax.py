@@ -41,8 +41,8 @@ def upload_to_hydroshare(request):
             hs = HydroShare(auth=auth, hostname="dev.hydroshare.org", use_https=True)
 
             # try to download a tiny file simply to test the user's credentials
-            test_id = '49d01b5b0d0a41b6a5a31d8aace0a36e'
-            hs.getResource(test_id, destination=None, unzip=False)
+            #test_id = '49d01b5b0d0a41b6a5a31d8aace0a36e'
+            #hs.getResource(test_id, destination=None, unzip=False)
 
             #download the iRODS file to a temp directory
             temp_dir = tempfile.mkdtemp()
