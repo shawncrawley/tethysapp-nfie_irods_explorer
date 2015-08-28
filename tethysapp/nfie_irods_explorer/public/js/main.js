@@ -321,9 +321,9 @@ function formatDropdownOptions(state) {
         return state.text;
     }
     else if (state.element.id.indexOf("?COLLECTION") != -1) {
-        return $('<span><img src="/static/nfie_irods_explorer/images/dir.svg" class="drop-down-icon" /> ' + state.text + '</span>');
+        return $('<span><img src="/static/nfie_irods_explorer/images/dir_icon.svg" class="drop-down-icon" /> ' + state.text + '</span>');
     }
-    return $('<span><img src="/static/nfie_irods_explorer/images/file.svg" class="drop-down-icon" /> ' + state.text + '</span>');
+    return $('<span><img src="/static/nfie_irods_explorer/images/file_icon.svg" class="drop-down-icon" /> ' + state.text + '</span>');
 }
 
 
