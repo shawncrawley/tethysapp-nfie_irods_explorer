@@ -12,7 +12,7 @@ var uploadButton = $('#upload-button');
 var viewerButton = $('#viewer-button');
 var displayStatus = $('#display-status');
 
-/**********Other**********/
+/**********General**********/
 var downloadPath;
 
 /*****************************************************
@@ -92,6 +92,21 @@ function clearUploadForm() {
         .empty();
 }
 
+function tagChange(event) { //added to $('#resource-keywords') as an 'onclick' function in home.html
+    var inputElement = $('.bootstrap-tagsinput').children('input');
+    var itemClicked = event.target || event.srcElement;
+    var itemId = itemClicked.id;
+    var jqueryIdCall = '#' + itemId;
+    if ($(jqueryIdCall).val() == "") {
+        inputElement.attr('placeholder', 'Separate each keyword with a space or comma');
+        inputElement.attr('style', 'width: 47em !important');
+    } else {
+        inputElement.removeAttr('placeholder');
+        inputElement.attr('style','width: 6em !important');
+
+    }
+}
+
 /************************************
  ******QUERY THE IRODS DATABASE******
  ************************************/
@@ -120,7 +135,7 @@ function irodsQuery(selectionPath) {
                 formatDropDown(dropDownType); //format the dropdown with file or folder pictures accordingly
             }
             else { //if there wasn't any data in the files or folders attributes, the selection was a file
-                downloadPath = 'http://shawncrawley:shawncrawley@nfie.hydroshare.org:8080/irods-rest/rest/fileContents' +
+                downloadPath = 'http://username:password@nfie.hydroshare.org:8080/irods-rest/rest/fileContents' +
                         selectionPath.slice(0, selectionPath.indexOf('?'));
                 //prepare the upload form
                 $('#resource-title').val(downloadPath.slice(downloadPath.lastIndexOf('/')+1)); //place the filename in the modal form
@@ -219,7 +234,7 @@ function irodsQuery(selectionPath) {
                             'HIS Referenced Time Series': 'RefTimeSeries',
                             'Model Instance': 'ModelInstanceResource',
                             'Model Program': 'ModelProgramResource',
-                            //'Multidimensional (NetCDF)': 'NetcdfResource',
+                            //'Multidimensional (NetCDF)': 'NetcdfResource', not presently functional
                             'Time Series': 'TimeSeriesResource',
                             'Application': 'ToolResource'
                         };
@@ -376,19 +391,4 @@ function isArray(a) {
 
 function isEven(a) {
     return 0 == a % 2
-}
-
-function tagChange(event) {
-    var inputElement = $('.bootstrap-tagsinput').children('input');
-    var itemClicked = event.target || event.srcElement;
-    var itemId = itemClicked.id;
-    var jqueryIdCall = '#' + itemId;
-    if ($(jqueryIdCall).val() == "") {
-        inputElement.attr('placeholder', 'Separate each keyword with a space or comma');
-        inputElement.attr('style', 'width: 47em !important');
-    } else {
-        inputElement.removeAttr('placeholder');
-        inputElement.attr('style','width: 6em !important');
-
-    }
 }

@@ -24,9 +24,9 @@ class NFIEiRODSExplorer(TethysAppBase):
                            controller='nfie_irods_explorer.controllers.home'),
                     UrlMap(name='get_dropdown_contents_ajax',
                            url='nfie-irods-explorer/get-dropdown-contents',
-                           controller='nfie_irods_explorer.controllers_ajax.get_dropdown_contents'),
+                           controller='nfie_irods_explorer.controllers.get_dropdown_contents'),
                     UrlMap(name='upload_to_hydroshare_ajax',
                            url='nfie-irods-explorer/upload-to-hydroshare',
-                           controller='nfie_irods_explorer.controllers_ajax.upload_to_hydroshare')
+                           controller='nfie_irods_explorer.controllers.upload_to_hydroshare')
                     )
         return url_maps
