@@ -8,7 +8,7 @@ See: https://github.com/CI-WATER/tethys and http://docs.tethys.ci-water.org**
 - Tethys Platform (CKAN, PostgresQL, GeoServer)
 - hs_restclient (python library)
 
-##Install hs_restclient:
+###Install hs_restclient:
 See: http://hs-restclient.readthedocs.org/en/latest/#installation
 
 ##Installation:
