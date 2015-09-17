@@ -1,8 +1,8 @@
 "use strict";
 
-/***********************
- ****GLOBAL VARIABLES***
- ***********************/
+/****************************************
+ ************GLOBAL VARIABLES************
+ ****************************************/
 
 /**********jQuery Handles**********/
 var dropDowns = $('#drop-down');
@@ -121,9 +121,7 @@ function irodsQuery(selectionPath) {
         dataType:'json',
         data: {'selection_path': selectionPath},
         error: function (jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR);
-            console.log(textStatus);
-            console.log(errorThrown);
+            console.log(jqXHR + '\n' + textStatus + '\n' + errorThrown);
         },
         success: function (data) { //if the query succeeds and returns data...
             var folders = data.irods_data.folders;
@@ -141,9 +139,8 @@ function irodsQuery(selectionPath) {
                 $('#resource-title').val(downloadPath.slice(downloadPath.lastIndexOf('/')+1)); //place the filename in the modal form
 
                 if (downloadPath.indexOf('rapid') != -1 && downloadPath.indexOf('output') != -1) {
-                    //$('#resource-type').val('Multidimensional (NetCDF)'); Currently not working. Will add once it has been fixed
+                    $('#resource-type').val('Multidimensional (NetCDF)'); //Currently not working. Will add once it has been fixed
                     var viewerButtonHref = "http://127.0.0.1:8000/apps/nfie-data-viewer?usr=null&src=iRODS&res_id=" + downloadPath;
-                    console.log(viewerButtonHref);
                     viewerButton.attr('href', viewerButtonHref);
                     viewerButton.removeClass('hidden');
                 } else {
@@ -210,88 +207,95 @@ function irodsQuery(selectionPath) {
                         $(this).parent().parent().remove();
                     }
                 });
-
-                /***************************************
-                 ******DOWNLOAD BUTTON CLICK EVENT******
-                 ***************************************/
-                downloadButton.off('click'); //remove any previous click function to clear the downloadPath variable
-                downloadButton.on('click', function () { //create a new click event to initialize the downloadPath variable
-                    window.open(downloadPath);
-                });
-
-                /***************************************
-                 *******UPLOAD BUTTON CLICK EVENT*******
-                 ***************************************/
-                $('#hydroshare-proceed').on('click', function () {
-                    $(this).prop('disabled', true);
-                    displayStatus.removeClass('error');
-                    displayStatus.addClass('uploading');
-                    displayStatus.html('<em>Uploading...</em>');
-                    var resourceTypeSwitch = function(typeSelection) {
-                        var options = {
-                            'Generic': 'GenericResource',
-                            'Geographic Raster': 'RasterResource',
-                            'HIS Referenced Time Series': 'RefTimeSeries',
-                            'Model Instance': 'ModelInstanceResource',
-                            'Model Program': 'ModelProgramResource',
-                            //'Multidimensional (NetCDF)': 'NetcdfResource', not presently functional
-                            'Time Series': 'TimeSeriesResource',
-                            'Application': 'ToolResource'
-                        };
-                        return options[typeSelection];
-                    };
-                    var hydroUsername = $('#hydro-username').val();
-                    var hydroPassword = $('#hydro-password').val();
-                    var resourceAbstract = $('#resource-abstract').val();
-                    var resourceTitle = $('#resource-title').val();
-                    var resourceKeywords = $('#resource-keywords').val() ? $('#resource-keywords').val() : "";
-                    var resourceType = resourceTypeSwitch($('#resource-type').val());
-
-                    if (!hydroPassword || !hydroUsername) {
-                        displayStatus.removeClass('uploading');
-                        displayStatus.addClass('error');
-                        displayStatus.html('<em>You must enter a username and password.</em>');
-                        return;
-                    }
-                    $.ajax({
-                        type: 'GET',
-                        url: 'upload-to-hydroshare',
-                        dataType:'json',
-                        data: {
-                                'download_path': downloadPath,
-                                'hs_username': hydroUsername,
-                                'hs_password': hydroPassword,
-                                'r_title': resourceTitle,
-                                'r_type': resourceType,
-                                'r_abstract': resourceAbstract,
-                                'r_keywords': resourceKeywords
-                        },
-                        success: function (data) {
-                            debugger;
-                            $('#hydroshare-proceed').prop('disabled', false);
-                            if ('error' in data) {
-                                displayStatus.removeClass('uploading');
-                                displayStatus.addClass('error');
-                                displayStatus.html('<em>' + data.error + '</em>');
-                            } else {
-                                displayStatus.removeClass('uploading');
-                                displayStatus.addClass('success');
-                                displayStatus.html('<em>File uploaded successfully!</em>');
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            $('#hydroshare-proceed').prop('disabled', false);
-                            console.log(jqXHR + '\n' + textStatus + '\n' + errorThrown);
-                            displayStatus.removeClass('uploading');
-                            displayStatus.addClass('error');
-                            displayStatus.html('<em>' + jqXHR + '</em>');
-                        }
-                    });
-                });
             }
         }
     })
 }
+
+/***************************************
+ ******DOWNLOAD BUTTON CLICK EVENT******
+ ***************************************/
+downloadButton.off('click'); //remove any previous click function to clear the downloadPath variable
+downloadButton.on('click', function () { //create a new click event to initialize the downloadPath variable
+    window.open(downloadPath);
+});
+
+/***************************************
+ *******UPLOAD BUTTON CLICK EVENT*******
+ ***************************************/
+//$._data($('#hydroshare-proceed'), 'events');
+$('#hydroshare-proceed').on('click', function () {
+    $(this).prop('disabled', true);
+    displayStatus.removeClass('error');
+    displayStatus.addClass('uploading');
+    displayStatus.html('<em>Uploading...</em>');
+    var resourceTypeSwitch = function(typeSelection) {
+        var options = {
+            'Generic': 'GenericResource',
+            'Geographic Raster': 'RasterResource',
+            'HIS Referenced Time Series': 'RefTimeSeries',
+            'Model Instance': 'ModelInstanceResource',
+            'Model Program': 'ModelProgramResource',
+            'Multidimensional (NetCDF)': 'NetcdfResource', //not presently functional
+            'Time Series': 'TimeSeriesResource',
+            'Application': 'ToolResource'
+        };
+        return options[typeSelection];
+    };
+    var hydroUsername = $('#hydro-username').val();
+    var hydroPassword = $('#hydro-password').val();
+    var resourceAbstract = $('#resource-abstract').val();
+    var resourceTitle = $('#resource-title').val();
+    var resourceKeywords = $('#resource-keywords').val() ? $('#resource-keywords').val() : "";
+    var resourceType = resourceTypeSwitch($('#resource-type').val());
+
+    if (!hydroPassword || !hydroUsername) {
+        displayStatus.removeClass('uploading');
+        displayStatus.addClass('error');
+        displayStatus.html('<em>You must enter a username and password.</em>');
+        return;
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: 'upload-to-hydroshare',
+        dataType:'json',
+        data: {
+                'download_path': downloadPath,
+                'hs_username': hydroUsername,
+                'hs_password': hydroPassword,
+                'r_title': resourceTitle,
+                'r_type': resourceType,
+                'r_abstract': resourceAbstract,
+                'r_keywords': resourceKeywords
+        },
+        success: function (data) {
+            alert("success");
+            debugger;
+            $('#hydroshare-proceed').prop('disabled', false);
+            if ('error' in data) {
+                displayStatus.removeClass('uploading');
+                displayStatus.addClass('error');
+                displayStatus.html('<em>' + data.error + '</em>');
+            } else {
+                displayStatus.removeClass('uploading');
+                displayStatus.addClass('success');
+
+                displayStatus.html('<em>' + data.success + ' View in HydroShare <a href="https://alpha.hydroshare.org/resource/' + data.newResource +
+                    '" target="_blank">here</a></em>');
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("error");
+            debugger;
+            $('#hydroshare-proceed').prop('disabled', false);
+            console.log(jqXHR + '\n' + textStatus + '\n' + errorThrown);
+            displayStatus.removeClass('uploading');
+            displayStatus.addClass('error');
+            displayStatus.html('<em>' + errorThrown + '</em>');
+        }
+    });
+});
 
 /***********************
 FORMAT THE SELECT2 BOXES

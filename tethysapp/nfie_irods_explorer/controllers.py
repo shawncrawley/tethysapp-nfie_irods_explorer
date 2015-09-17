@@ -4,7 +4,6 @@ import shutil
 import os
 import traceback
 import requests
-import requests
 
 sys.path.append('/usr/local/lib/python2.7/dist-packages')
 
@@ -52,40 +51,46 @@ def upload_to_hydroshare(request):
 
             #startup a Hydroshare instance with user's credentials
             auth = HydroShareAuthBasic(username=hs_username, password=hs_password)
-            hs = HydroShare(auth=auth, hostname="dev.hydroshare.org", use_https=True)
+            hs = HydroShare(auth=auth, hostname="alpha.hydroshare.org", use_https=True)
 
             # try to download a tiny file simply to test the user's credentials
-            #test_id = '49d01b5b0d0a41b6a5a31d8aace0a36e'
-            #hs.getResource(test_id, destination=None, unzip=False)
+            # test_id = '49d01b5b0d0a41b6a5a31d8aace0a36e'
+            # hs.getResource(test_id, destination=None, unzip=False)
 
             #download the iRODS file to a temp directory
             temp_dir = tempfile.mkdtemp()
             filename = os.path.basename(download_path)
-            file_path = os.path.join(temp_dir, filename)
+            download_file_path = os.path.join(temp_dir, filename)
             download = requests.get(download_path, stream=True)
-            with open(file_path, 'wb') as fd:
+            with open(download_file_path, 'wb') as fd:
                 for chunk in download.iter_content(1024):
                     fd.write(chunk)
 
             #upload the temp file to HydroShare
-            if os.path.exists(file_path):
-                resource_id = hs.createResource(r_type, r_title, resource_file=file_path, keywords=r_keywords, abstract=r_abstract)
-                shutil.rmtree(temp_dir)
+            if os.path.exists(download_file_path):
+                resource_id = hs.createResource(r_type, r_title, resource_file=download_file_path, keywords=r_keywords, abstract=r_abstract)
             else:
+                if temp_dir:
+                    # remove the temp directory/file
+                    shutil.rmtree(temp_dir)
                 return JsonResponse({'error': 'An error occurred with the file upload.'})
 
-            #remove the temp directory/file
-
     except Exception, err:
+        if temp_dir:
+            # remove the temp directory/file
+            shutil.rmtree(temp_dir)
         if "401 Unauthorized" in str(err):
-            return JsonResponse({'error': 'Username or password invalid. Please check them for errors.'})
+            return JsonResponse({'error': 'Username or password invalid.'})
+        elif "400 Bad Request" in str(err):
+            return JsonResponse({'error': 'File uploaded successfully despite 400 Bad Request Error.'})
         else:
             traceback.print_exc()
-            if temp_dir:
-                shutil.rmtree(temp_dir)
             return JsonResponse({'error': 'HydroShare rejected the upload for some reason.'})
 
-    return JsonResponse({'success': 'File uploaded successfully!'})
+    # remove the temp directory/file
+    shutil.rmtree(temp_dir)
+    return JsonResponse({'success': 'File uploaded successfully!',
+                         'newResource': resource_id})
 
 
 def irods_query(selection_path):
@@ -97,10 +102,12 @@ def irods_query(selection_path):
     selection_path = selection_path.replace("%%", "/")
 
     headers = {'Accept': 'application/json'}
-    auth = HTTPBasicAuth('shawncrawley', 'shawncrawley')
+    auth = HTTPBasicAuth('username', 'password')
     url = 'http://nfie.hydroshare.org:8080/irods-rest/rest/' + resource + selection_path + '?listing=true'
+    print url
 
     r = requests.get(url, headers=headers, auth=auth)
+    print r
     response = r.json()
 
     try:
