@@ -1,11 +1,8 @@
-import sys
 import tempfile
 import shutil
 import os
 import traceback
 import requests
-
-sys.path.append('/usr/local/lib/python2.7/dist-packages')
 
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
@@ -51,7 +48,7 @@ def upload_to_hydroshare(request):
 
             #startup a Hydroshare instance with user's credentials
             auth = HydroShareAuthBasic(username=hs_username, password=hs_password)
-            hs = HydroShare(auth=auth, hostname="alpha.hydroshare.org", use_https=True)
+            hs = HydroShare(auth=auth, hostname="dev.hydroshare.org", use_https=True)
 
             # try to download a tiny file simply to test the user's credentials
             # test_id = '49d01b5b0d0a41b6a5a31d8aace0a36e'

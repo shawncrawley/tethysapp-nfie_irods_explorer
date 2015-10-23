@@ -281,7 +281,7 @@ $('#hydroshare-proceed').on('click', function () {
                 displayStatus.removeClass('uploading');
                 displayStatus.addClass('success');
 
-                displayStatus.html('<em>' + data.success + ' View in HydroShare <a href="https://alpha.hydroshare.org/resource/' + data.newResource +
+                displayStatus.html('<em>' + data.success + ' View in HydroShare <a href="https://dev.hydroshare.org/resource/' + data.newResource +
                     '" target="_blank">here</a></em>');
             }
         },
