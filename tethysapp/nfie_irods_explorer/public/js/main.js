@@ -140,7 +140,7 @@ function irodsQuery(selectionPath) {
 
                 if (downloadPath.indexOf('rapid') != -1 && downloadPath.indexOf('output') != -1) {
                     $('#resource-type').val('Multidimensional (NetCDF)'); //Currently not working. Will add once it has been fixed
-                    var viewerButtonHref = "http://127.0.0.1:8000/apps/nfie-data-viewer?usr=null&src=iRODS&res_id=" + downloadPath;
+                    var viewerButtonHref = "/apps/nfie-data-viewer?usr=null&src=iRODS&res_id=" + downloadPath;
                     viewerButton.attr('href', viewerButtonHref);
                     viewerButton.removeClass('hidden');
                 } else {
